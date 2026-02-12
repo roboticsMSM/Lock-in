@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-const totalPhotos = 100; // Change this to the exact number of photos you have
+const totalPhotos = 306; // Change this to the exact number of photos you have
 const imageFolder = "images"; // Your folder name
 const fileExtension = "jpg"; // Check if your files are .jpg or .png
 
