@@ -1,17 +1,11 @@
-// --- CONFIGURATION ---
-const totalPhotos = 306; // Change this to the exact number of photos you have
-const imageFolder = "images"; // Your folder name
-const fileExtension = "jpg"; // Check if your files are .jpg or .png
+document.addEventListener('DOMContentLoaded', () => {
+    const totalPhotos = 306; 
+    const imageFolder = "images"; 
+    const fileExtension = "jpg"; 
 
-const tips = [
-    "Hey Manya, go grab some coffee.",
-    "Time for a water break. Stay hydrated.",
-    "You're doing great. Stretch for a second.",
-    "Take a deep breath. You're making progress.",
-    "Go eat a quick snack, you need the energy.",
-    "Eyes off the screen for a minute. Rest them.",
-    "You're one step closer to finishing. Keep going!"
-    "Hydrate. Your brain needs it.",
+    // Your massive tips list...
+    const tips = [
+            "Hydrate. Your brain needs it.",
     "Stand up. Quick stretch.",
     "Snack break. Fuel up.",
     "Fix your posture.",
@@ -109,106 +103,86 @@ const tips = [
     "Short walk.",
     "Hydrate again.",
     "Finish strong."
-];
+    ];
 
-let sessionSeconds = 0;
-let isBreak = false;
-let photoInterval;
+    let sessionSeconds = 0;
+    let isBreak = false;
+    let photoInterval;
 
-// Elements
-const dash = document.getElementById('study-dashboard');
-const frame = document.getElementById('photo-frame');
-const panic = document.getElementById('panic-screen');
-const tipEl = document.getElementById('care-tip');
-const mainClock = document.getElementById('main-clock');
-const sessionTimer = document.getElementById('session-timer');
+    const dash = document.getElementById('study-dashboard');
+    const frame = document.getElementById('photo-frame');
+    const panic = document.getElementById('panic-screen');
+    const tipEl = document.getElementById('care-tip');
 
-// --- CLOCK LOGIC ---
-function updateTime() {
-    const now = new Date();
-    // Using 12-hour format for a friendlier feel, or keep it 24-hour if you prefer
-    mainClock.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    // --- CLOCK ---
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('main-clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-    if (!isBreak && panic.style.display !== 'block') {
-        sessionSeconds++;
-        const h = Math.floor(sessionSeconds / 3600).toString().padStart(2, '0');
-        const m = Math.floor((sessionSeconds % 3600) / 60).toString().padStart(2, '0');
-        const s = (sessionSeconds % 60).toString().padStart(2, '0');
-        sessionTimer.innerText = `SESSION: ${h}:${m}:${s}`;
-        
-        // Save to Local Storage so she can see her total effort
-        localStorage.setItem('manya_study_time', sessionSeconds);
+        if (!isBreak && panic.style.display !== 'block') {
+            sessionSeconds++;
+            const h = Math.floor(sessionSeconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((sessionSeconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (sessionSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('session-timer').innerText = `SESSION: ${h}:${m}:${s}`;
+            localStorage.setItem('manya_study_time', sessionSeconds);
+        }
     }
-}
 
-// Load previous progress on startup
-window.onload = () => {
     const saved = localStorage.getItem('manya_study_time');
     if (saved) sessionSeconds = parseInt(saved);
     setInterval(updateTime, 1000);
-};
 
-// --- BREAK TRANSITIONS ---
-function startBreak() {
-    isBreak = true;
-    dash.classList.add('zoom-active');
-    
-    setTimeout(() => {
-        dash.style.display = 'none';
-        frame.style.display = 'block';
-        changePhoto();
-        // Cycles photos every 25 seconds
-        photoInterval = setInterval(changePhoto, 25000); 
-    }, 600);
-}
+    // --- PHOTO LOGIC (The Mobile-Safe Dual Layer) ---
+    function changePhoto() {
+        const num = Math.floor(Math.random() * totalPhotos) + 1;
+        const basePath = `${imageFolder}/photo (${num})`;
+        
+        const testImg = new Image();
+        
+        const applyPath = (path) => {
+            // This sets a CSS variable that both ::before and ::after use
+            frame.style.setProperty('--bg-img', `url('${path}')`);
+        };
 
-function endBreak() {
-    isBreak = false;
-    clearInterval(photoInterval);
-    frame.style.display = 'none';
-    dash.style.display = 'flex';
-    setTimeout(() => {
-        dash.classList.remove('zoom-active');
-    }, 50);
-}
+        testImg.onload = () => applyPath(`${basePath}.jpg`);
+        testImg.onerror = () => applyPath(`${basePath}.jpeg`);
+        testImg.src = `${basePath}.jpg`;
 
-function changePhoto() {
-    // Generate random number between 1 and totalPhotos
-    const randomNumber = Math.floor(Math.random() * totalPhotos) + 1;
-    
-    // MATCHING WINDOWS FORMAT: photo (1).jpg
-    // Note: If you renamed them as "photo (1)", Windows puts a space before the bracket
-    const photoPath = `${imageFolder}/photo (${randomNumber}).${fileExtension}`;
-    
-    const randomTip = tips[Math.floor(Math.random() * tips.length)];
-    
-    // Apply background with a slight dark overlay to make the "Locked In" button and tips readable
-    frame.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('${photoPath}')`;
-    
-    // Add a small fade effect to the text change
-    tipEl.style.opacity = 0;
-    setTimeout(() => {
-        tipEl.innerText = randomTip;
-        tipEl.style.opacity = 1;
-    }, 500);
-}
+        tipEl.innerText = tips[Math.floor(Math.random() * tips.length)];
+    }
 
-// --- CONTROLS ---
-document.getElementById('break-btn').addEventListener('click', startBreak);
-document.getElementById('locked-in-btn').addEventListener('click', endBreak);
+    // --- ACTIONS ---
+    document.getElementById('break-btn').onclick = () => {
+        isBreak = true;
+        dash.classList.add('zoom-active');
+        setTimeout(() => {
+            dash.style.display = 'none';
+            frame.style.display = 'block';
+            changePhoto();
+            photoInterval = setInterval(changePhoto, 25000);
+        }, 600);
+    };
 
-window.onkeydown = function(e) {
-    // ESC key: Emergency Switch (The Panic Switch)
-    if (e.key === "Escape") { 
-        if (isBreak) {
-            endBreak(); // Instantly returns to dashboard
-        } else {
-            // Fakes the boring study page
-            panic.style.display = 'block'; 
+    document.getElementById('locked-in-btn').onclick = () => {
+        isBreak = false;
+        clearInterval(photoInterval);
+        frame.style.display = 'none';
+        dash.style.display = 'flex';
+        setTimeout(() => dash.classList.remove('zoom-active'), 50);
+    };
+
+    // --- PANIC KEYS ---
+    window.onkeydown = (e) => {
+        if (e.key === "Escape") {
+            if (isBreak) document.getElementById('locked-in-btn').click();
+            else panic.style.display = 'block';
         }
-    }
-    // SPACE key: Hide Panic Screen and go back to Dashboard
-    if (e.key === " " && panic.style.display === 'block') {
-        panic.style.display = 'none';
-    }
-};
+        if (e.key === " " && panic.style.display === 'block') panic.style.display = 'none';
+    };
+
+    // Mobile Hidden Panic (Triple tap the clock to show panic)
+    document.getElementById('main-clock').addEventListener('click', function (e) {
+        if (e.detail === 3) panic.style.display = 'block';
+    });
+});
