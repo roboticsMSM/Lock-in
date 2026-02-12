@@ -1,0 +1,136 @@
+:root {
+    --bg-color: #0f0f0f;
+    --text-color: #ffffff;
+    --accent-color: #888888;
+    --panic-bg: #ffffff;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+/* --- STUDY DASHBOARD --- */
+#study-dashboard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s;
+}
+
+#main-clock {
+    font-size: 7rem;
+    font-weight: 200;
+}
+
+#session-timer {
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    margin-bottom: 50px;
+    letter-spacing: 3px;
+}
+
+.btn {
+    padding: 18px 45px;
+    background: transparent;
+    border: 1px solid #444;
+    color: var(--text-color);
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: 0.3s;
+    z-index: 20;
+}
+
+.btn:hover {
+    background: white;
+    color: black;
+}
+
+/* --- PHOTO FRAME (FIXED ZOOM) --- */
+#photo-frame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    z-index: 10;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0 0;
+    background-color: black;
+    transition: opacity 1s;
+}
+
+/* The Blurred Background Effect */
+#photo-frame::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px) brightness(0.4);
+    z-index: -1;
+}
+
+/* The Sharp Image Layer */
+#photo-frame::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: inherit;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+}
+
+#photo-overlay {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    background: rgba(0,0,0,0.6);
+    padding: 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border-left: 3px solid white;
+}
+
+#care-tip {
+    font-style: italic;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+#locked-in-btn {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+}
+
+/* --- PANIC SCREEN --- */
+#panic-screen {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: white;
+    color: black;
+    z-index: 100;
+    padding: 50px;
+}
+
+.zoom-active {
+    transform: scale(2.5);
+    opacity: 0;
+}
