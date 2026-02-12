@@ -137,16 +137,24 @@ function updateTime() {
         sessionTimer.innerText = `SESSION: ${h}:${m}:${s}`;
         
         // Save to Local Storage so she can see her total effort
-        localStorage.setItem('manya_study_time', sessionSeconds);
+        try {
+            localStorage.setItem('manya_study_time', sessionSeconds);
+        } catch (e) {
+            // Storage disabled (e.g. private mode), ignore error
+        }
     }
 }
 
 // Load previous progress on startup
-window.onload = () => {
-    const saved = localStorage.getItem('manya_study_time');
-    if (saved) sessionSeconds = parseInt(saved);
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const saved = localStorage.getItem('manya_study_time');
+        if (saved) sessionSeconds = parseInt(saved);
+    } catch (e) {
+        console.log("Local storage access denied");
+    }
     setInterval(updateTime, 1000);
-};
+});
 
 // --- BREAK TRANSITIONS ---
 function startBreak() {
@@ -178,7 +186,8 @@ function changePhoto() {
     
     // MATCHING WINDOWS FORMAT: photo (1).jpg
     // Note: If you renamed them as "photo (1)", Windows puts a space before the bracket
-    const photoPath = `${imageFolder}/photo (${randomNumber}).${fileExtension}`;
+    // Encode the filename to handle spaces and brackets safely on mobile browsers
+    const photoPath = `${imageFolder}/${encodeURIComponent(`photo (${randomNumber}).${fileExtension}`)}`;
     
     const randomTip = tips[Math.floor(Math.random() * tips.length)];
     
@@ -212,3 +221,8 @@ window.onkeydown = function(e) {
         panic.style.display = 'none';
     }
 };
+
+// Mobile Support: Tap panic screen to dismiss (since no Space bar)
+panic.addEventListener('click', () => {
+    panic.style.display = 'none';
+});
